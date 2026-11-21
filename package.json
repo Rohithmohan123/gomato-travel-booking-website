@@ -1,0 +1,17 @@
+{
+  "name": "gomato-travel-booking-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Responsive travel booking website demo (HTML, CSS, vanilla JavaScript) — independent reconstruction with sample data.",
+  "type": "module",
+  "scripts": {
+    "start": "node tools/serve.mjs 8080",
+    "test": "node --test tests/logic.test.mjs",
+    "e2e": "node tests/e2e.mjs",
+    "images": "node tools/generate-images.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.57.0"
+  },
+  "license": "MIT"
+}

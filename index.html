@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gomato Travel · Holiday packages (demo)</title>
+  <meta name="description" content="Demo travel booking website: browse sample holiday packages, search and filter destinations and send a booking enquiry. No real bookings or payments.">
+  <meta name="theme-color" content="#0f4c5c">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="demo-banner" role="note">Portfolio demo · sample destinations and prices · no real bookings or payments are made</div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#/" class="logo" aria-label="Gomato Travel home">
+        <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#e4572e"/><path d="M8 21c4-7 8-10 18-10M10 25c5-4 9-6 15-6" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="23" cy="11" r="2.4" fill="#fff"/></svg>
+        <span>Gomato<em>Travel</em></span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <nav id="site-nav" class="site-nav" aria-label="Main">
+        <a href="#/" data-nav="/">Home</a>
+        <a href="#/destinations" data-nav="/destinations">Destinations</a>
+        <a href="#/enquiries" data-nav="/enquiries">My enquiries <span class="badge" data-enquiry-count hidden></span></a>
+        <a href="#/booking" class="btn btn-primary btn-sm" data-nav="/booking">Plan a trip</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <noscript><div class="container"><p>This site needs JavaScript enabled.</p></div></noscript>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <p class="logo logo-light"><span>Gomato<em>Travel</em></span></p>
+        <p>A front-end demonstration of a travel booking website: destination listings, search and filters, package details and a booking enquiry flow.</p>
+      </div>
+      <div>
+        <h2>Explore</h2>
+        <a href="#/destinations?region=Kerala">Kerala</a>
+        <a href="#/destinations?region=Rest%20of%20India">Rest of India</a>
+        <a href="#/destinations?region=International">International</a>
+      </div>
+      <div>
+        <h2>About this demo</h2>
+        <p>Rebuilt from scratch for a portfolio; not the original client website. Packages and prices are sample data. Enquiries stay in your browser (localStorage). No booking provider or payment gateway is connected.</p>
+      </div>
+    </div>
+    <div class="container footer-base">© <span data-year></span> Demo project · MIT licence · Illustrations are original artwork</div>
+  </footer>
+
+  <div class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
