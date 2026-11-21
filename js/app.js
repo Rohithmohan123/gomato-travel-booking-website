@@ -1,4 +1,4 @@
-import { destinations, REGIONS, TRIP_TYPES, MONTHS, PACKAGE_TIERS } from './data.js';
+import { destinations, REGIONS, TRIP_TYPES, MONTHS, PACKAGE_TIERS, PHOTOS, HERO_PHOTO, CTA_PHOTO, photoUrl } from './data.js';
 import { filterDestinations, sortDestinations, estimatePrice, formatINR, validateBooking, makeReference, parseHash, addDays } from './logic.js';
 import { icon, TYPE_ICON } from './icons.js';
 
@@ -9,7 +9,8 @@ const PRICE_MAX = Math.ceil(Math.max(...destinations.map((d) => d.priceFrom)) / 
 
 // ------------------------------------------------------------------ helpers
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const img = (d, n = 1) => `images/destinations/${d.slug}${n > 1 ? `-${n}` : ''}.svg`;
+const img = (d, n = 1, w = 1200) => photoUrl(PHOTOS[d.slug][n - 1], w);
+const srcset = (d, n = 1) => [480, 800, 1200].map((w) => `${img(d, n, w)} ${w}w`).join(', ');
 const today = () => new Date().toISOString().slice(0, 10);
 
 function loadEnquiries() {
@@ -40,15 +41,19 @@ function setHash(path, params = {}) {
 function card(d) {
   return `<article class="card dest-card">
     <a href="#/destinations/${d.slug}" class="card-link" aria-label="${esc(d.name)}: view package details">
-      <div class="card-media"><img src="${img(d)}" alt="" width="1200" height="800" loading="lazy"><span class="chip chip-light">${esc(d.region)}</span></div>
+      <div class="card-media">
+        <img src="${img(d, 1, 800)}" srcset="${srcset(d)}" sizes="(max-width: 700px) 100vw, 400px" alt="${esc(d.name)}" width="800" height="600" loading="lazy">
+        <span class="chip chip-light">${icon(TYPE_ICON[d.types[0]], 14)}${esc(d.types[0])}</span>
+        <span class="rating">${icon('star', 14)}${d.rating.toFixed(1)}<span class="visually-hidden"> out of 5</span></span>
+      </div>
       <div class="card-body">
-        <div class="card-top"><h3>${esc(d.name)}</h3><span class="rating">${icon('star', 15)}${d.rating.toFixed(1)}<span class="visually-hidden"> out of 5 (sample)</span></span></div>
-        <p class="muted">${esc(d.summary)}</p>
-        <ul class="meta">
-          <li>${icon('moon', 16)}${d.nights}N / ${d.nights + 1}D</li>
-          <li>${icon(TYPE_ICON[d.types[0]], 16)}${d.types.join(', ')}</li>
-        </ul>
-        <div class="card-foot"><span><small>from</small> <strong>${formatINR(d.priceFrom)}</strong> <small>/ person</small></span><span class="link-arrow">Details ${icon('arrow', 16)}</span></div>
+        <p class="card-kicker">${icon('pin', 14)}${esc(d.region === 'International' ? d.country : d.region === 'Kerala' ? 'Kerala, India' : 'India')}</p>
+        <h3>${esc(d.name)}</h3>
+        <p class="muted card-summary">${esc(d.summary)}</p>
+        <div class="card-foot">
+          <span class="duration">${icon('moon', 15)}${d.nights}N / ${d.nights + 1}D</span>
+          <span class="price"><small>from</small> <strong>${formatINR(d.priceFrom)}</strong></span>
+        </div>
       </div>
     </a>
   </article>`;
@@ -68,46 +73,83 @@ function searchForm(params = {}) {
 // ------------------------------------------------------------------ pages
 function homePage() {
   const featured = sortDestinations(destinations, 'popular').slice(0, 6);
+  const trending = ['alleppey-houseboat', 'maldives', 'munnar', 'dubai', 'jaipur-udaipur'].map((s) => bySlug[s]);
+  const regionCard = (r, slug, blurb) => {
+    const n = destinations.filter((d) => d.region === r).length;
+    return `<a class="region-card" href="#/destinations?region=${encodeURIComponent(r)}">
+      <img src="${img(bySlug[slug], 1, 900)}" alt="" width="900" height="1100" loading="lazy">
+      <span class="region-text"><strong>${r}</strong><small>${blurb} · ${n} packages</small><span class="region-cta">Explore ${icon('arrow', 16)}</span></span>
+    </a>`;
+  };
   return `
   <section class="hero">
-    <img class="hero-bg" src="images/hero.svg" alt="" width="1200" height="800">
+    <img class="hero-bg" src="${photoUrl(HERO_PHOTO, 1920)}" srcset="${[800, 1280, 1920].map((w) => `${photoUrl(HERO_PHOTO, w)} ${w}w`).join(', ')}" sizes="100vw" alt="Houseboat on the Kerala backwaters" width="1920" height="1080" fetchpriority="high">
     <div class="container hero-inner">
-      <p class="eyebrow">Kerala · India · Abroad</p>
-      <h1>Holidays planned around you, from backwaters to skylines.</h1>
-      <p class="lead">Browse sample packages, compare prices and send an enquiry in a couple of minutes.</p>
-      ${searchForm()}
+      <p class="hero-kicker">${icon('pin', 16)} Kerala specialists · India · International</p>
+      <h1>Find your perfect holiday, planned end to end.</h1>
+      <p class="lead">Handpicked packages with stays, transfers and sightseeing. Compare tiers, see an itemised price and enquire in minutes.</p>
     </div>
   </section>
+  <div class="container search-wrap">${searchForm()}</div>
 
   <section class="section">
     <div class="container">
-      <div class="section-head"><div><p class="eyebrow">Trip styles</p><h2>What kind of trip?</h2></div></div>
-      <div class="type-grid">
-        ${TRIP_TYPES.map((t) => {
-          const n = destinations.filter((d) => d.types.includes(t)).length;
-          return `<a class="type-tile" href="#/destinations?type=${encodeURIComponent(t)}">${icon(TYPE_ICON[t], 28)}<strong>${t}</strong><small>${n} package${n === 1 ? '' : 's'}</small></a>`;
-        }).join('')}
+      <div class="section-head"><div><h2>Trending destinations</h2><p class="muted">Most-booked trips this season</p></div><a class="text-link" href="#/destinations">View all ${icon('arrow', 16)}</a></div>
+      <div class="bento">
+        ${trending.map((d, i) => `<a class="bento-tile${i === 0 ? ' bento-lg' : ''}" href="#/destinations/${d.slug}">
+          <img src="${img(d, 1, i === 0 ? 1200 : 700)}" alt="" width="1200" height="800" loading="lazy">
+          <span class="bento-text"><strong>${esc(d.name)}</strong><small>${d.nights} nights · from ${formatINR(d.priceFrom)}</small></span>
+        </a>`).join('')}
       </div>
     </div>
   </section>
 
   <section class="section section-tint">
     <div class="container">
-      <div class="section-head"><div><p class="eyebrow">Popular</p><h2>Top-rated packages</h2></div><a class="btn btn-ghost" href="#/destinations">All destinations ${icon('arrow', 16)}</a></div>
-      <div class="grid">${featured.map(card).join('')}</div>
+      <div class="section-head"><div><h2>Travel your way</h2><p class="muted">Pick a trip style to see matching packages</p></div></div>
+      <div class="type-grid">
+        ${TRIP_TYPES.map((t) => {
+          const n = destinations.filter((d) => d.types.includes(t)).length;
+          return `<a class="type-tile" href="#/destinations?type=${encodeURIComponent(t)}"><span class="type-icon">${icon(TYPE_ICON[t], 24)}</span><span><strong>${t}</strong><small>${n} package${n === 1 ? '' : 's'}</small></span></a>`;
+        }).join('')}
+      </div>
     </div>
   </section>
 
   <section class="section">
     <div class="container">
-      <div class="section-head"><div><p class="eyebrow">How it works</p><h2>From idea to itinerary</h2></div></div>
-      <ol class="steps">
-        ${[['search', 'Pick a destination', 'Filter by region, trip style, budget, duration or travel month.'],
-           ['wallet', 'See an estimate', 'Choose a package tier and travellers to get an itemised price estimate.'],
-           ['chat', 'Send an enquiry', 'A travel planner would confirm availability and final prices with you.'],
-           ['shield', 'Travel with support', 'In a real service: confirmed vouchers and on-trip help.']]
-          .map(([ic, t, d], i) => `<li><span class="step-num">${i + 1}</span>${icon(ic, 26)}<h3>${t}</h3><p class="muted">${d}</p></li>`).join('')}
-      </ol>
+      <div class="section-head"><div><h2>Top-rated packages</h2><p class="muted">Highest-rated trips across all regions</p></div><a class="btn btn-ghost" href="#/destinations">All packages ${icon('arrow', 16)}</a></div>
+      <div class="grid">${featured.map(card).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section section-tight">
+    <div class="container region-grid">
+      ${regionCard('Kerala', 'munnar', 'Hills, backwaters and beaches')}
+      ${regionCard('Rest of India', 'jaipur-udaipur', 'Forts, mountains and islands')}
+      ${regionCard('International', 'bali', 'Short-haul getaways abroad')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head center"><div><h2>Why book with Gomato</h2><p class="muted">Everything sorted before you pack</p></div></div>
+      <ul class="features">
+        ${[['route', 'Complete itineraries', 'Day-by-day plans with stays, transfers and sightseeing already worked out.'],
+           ['wallet', 'Transparent pricing', 'Itemised estimates with child rates, peak surcharges and GST shown upfront.'],
+           ['users', 'Three package tiers', 'Standard, Comfort or Premium stays to match your budget and pace.'],
+           ['shield', 'Planner-confirmed', 'Every enquiry is checked for availability before anything is booked.']]
+          .map(([ic, t, d]) => `<li><span class="feature-icon">${icon(ic, 24)}</span><h3>${t}</h3><p class="muted">${d}</p></li>`).join('')}
+      </ul>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <img src="${photoUrl(CTA_PHOTO, 1600)}" alt="" width="1600" height="900" loading="lazy">
+    <div class="container cta-inner">
+      <h2>Not sure where to go yet?</h2>
+      <p>Tell us your dates, group and budget and get an instant estimate for any package.</p>
+      <a class="btn btn-primary btn-lg" href="#/booking">Plan my trip ${icon('arrow', 18)}</a>
     </div>
   </section>`;
 }
@@ -119,8 +161,8 @@ function destinationsPage(params) {
   };
   return `
   <section class="page-head"><div class="container">
-    <p class="eyebrow">Destinations</p><h1>Find your next trip</h1>
-    <p class="lead">${destinations.length} sample packages across Kerala, the rest of India and abroad.</p>
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="#/">Home</a><span>/</span>Destinations</nav><h1>Holiday packages</h1>
+    <p class="lead">${destinations.length} handpicked packages across Kerala, the rest of India and abroad.</p>
   </div></section>
   <section class="section section-tight"><div class="container listing">
     <aside class="filters" aria-label="Filters">
@@ -193,8 +235,8 @@ function bindDestinations() {
 
 function detailPage(slug) {
   const d = bySlug[slug];
-  if (!d) return notFound('That destination is not in our sample catalogue.');
-  document.title = `${d.name} · Gomato Travel (demo)`;
+  if (!d) return notFound('We couldn’t find that destination.');
+  document.title = `${d.name} holiday packages · Gomato Travel`;
   const months = MONTHS.map((m, i) => `<li class="${d.bestMonths.includes(i + 1) ? 'good' : ''}" title="${d.bestMonths.includes(i + 1) ? 'Good time to visit' : 'Off season'}">${m}</li>`).join('');
   const related = destinations.filter((x) => x.slug !== d.slug && x.types.some((t) => d.types.includes(t))).slice(0, 3);
   return `
@@ -202,15 +244,15 @@ function detailPage(slug) {
     <section class="container detail-head">
       <a class="back" href="#/destinations">${icon('back', 16)} All destinations</a>
       <div class="detail-title">
-        <div><p class="eyebrow">${esc(d.region)} · ${esc(d.country)}</p><h1>${esc(d.name)}</h1><p class="lead">${esc(d.summary)}</p></div>
-        <div class="price-box"><small>Sample price from</small><strong>${formatINR(d.priceFrom)}</strong><small>per person · ${d.nights} nights</small>
+        <div><p class="eyebrow">${icon('pin', 15)} ${esc(d.region)} · ${esc(d.country)} <span class="rating-inline">${icon('star', 15)} ${d.rating.toFixed(1)}</span></p><h1>${esc(d.name)}</h1><p class="lead">${esc(d.summary)}</p></div>
+        <div class="price-box"><small>Starting from</small><strong>${formatINR(d.priceFrom)}</strong><small>per person · ${d.nights} nights</small>
           <a class="btn btn-primary" href="#/booking?destination=${d.slug}">Enquire now</a></div>
       </div>
     </section>
     <section class="container gallery" data-gallery>
-      <img class="gallery-main" src="${img(d)}" alt="${esc(d.name)} illustration, image 1 of 3" width="1200" height="800">
-      <div class="gallery-thumbs" role="group" aria-label="Choose image">
-        ${[1, 2, 3].map((n) => `<button type="button" data-img="${img(d, n)}" data-n="${n}" aria-label="Show image ${n}" aria-pressed="${n === 1}"><img src="${img(d, n)}" alt="" width="1200" height="800" loading="lazy"></button>`).join('')}
+      <img class="gallery-main" src="${img(d, 1, 1400)}" data-n="1" alt="${esc(d.name)}, photo 1 of 3" width="1400" height="933">
+      <div class="gallery-thumbs" role="group" aria-label="Choose photo">
+        ${[1, 2, 3].map((n) => `<button type="button" data-img="${img(d, n, 1400)}" data-n="${n}" aria-label="Show image ${n}" aria-pressed="${n === 1}"><img src="${img(d, n, 500)}" alt="" width="500" height="333" loading="lazy"></button>`).join('')}
       </div>
     </section>
     <section class="container detail-body section-tight">
@@ -229,7 +271,7 @@ function detailPage(slug) {
         <h3>Trip style</h3><div class="chips">${d.types.map((t) => `<a class="chip" href="#/destinations?type=${encodeURIComponent(t)}">${icon(TYPE_ICON[t], 15)} ${t}</a>`).join('')}</div>
         <h3>Package tiers</h3>
         <ul class="tiers">${PACKAGE_TIERS.map((t) => `<li><span><strong>${t.name}</strong><small>${t.note}</small></span><span>${formatINR(d.priceFrom * t.multiplier)}</span></li>`).join('')}</ul>
-        <p class="muted small">Sample prices per adult on twin sharing, before GST. Not a live offer.</p>
+        <p class="muted small">Per adult on twin sharing, before GST. Final price confirmed by your planner.</p>
         <a class="btn btn-primary btn-block" href="#/booking?destination=${d.slug}">Get a price estimate</a>
       </aside>
     </section>
@@ -245,7 +287,8 @@ function bindDetail() {
     if (!b) return;
     const main = g.querySelector('.gallery-main');
     main.src = b.dataset.img;
-    main.alt = main.alt.replace(/image \d/, `image ${b.dataset.n}`);
+    main.dataset.n = b.dataset.n;
+    main.alt = main.alt.replace(/photo \d/, `photo ${b.dataset.n}`);
     g.querySelectorAll('button[data-img]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
   });
 }
@@ -255,7 +298,7 @@ function bookingPage(params) {
   const pre = bySlug[params.destination] ? params.destination : '';
   const field = (name, label, inputHtml, hint = '') => `<div class="field" data-field="${name}"><label for="f-${name}">${label}</label>${inputHtml}${hint ? `<small class="hint">${hint}</small>` : ''}<small class="error" id="e-${name}" aria-live="polite"></small></div>`;
   return `
-  <section class="page-head"><div class="container"><p class="eyebrow">Booking enquiry</p><h1>Plan your trip</h1>
+  <section class="page-head"><div class="container"><nav class="crumbs" aria-label="Breadcrumb"><a href="#/">Home</a><span>/</span>Plan a trip</nav><h1>Plan your trip</h1>
     <p class="lead">Tell us when and who is travelling. You will see an itemised estimate before you send the enquiry.</p></div></section>
   <section class="section section-tight"><div class="container booking">
     <form class="panel form" data-booking novalidate>
@@ -280,7 +323,7 @@ function bookingPage(params) {
       <div class="field" data-field="consent"><label class="check"><input type="checkbox" name="consent"> I agree to be contacted about this enquiry. *</label><small class="error" id="e-consent" aria-live="polite"></small></div>
       <div class="form-error" role="alert" hidden></div>
       <button class="btn btn-primary btn-lg" type="submit">Send enquiry</button>
-      <p class="muted small">Demo only: the enquiry is saved in this browser. Nothing is sent, booked or charged.</p>
+      <p class="muted small">No payment is taken now. A planner confirms availability and the final price before anything is booked.</p>
     </form>
     <aside class="panel summary" aria-live="polite" data-summary></aside>
   </div></section>`;
@@ -301,12 +344,12 @@ function renderSummary(data) {
   if (!d) return `<h2>Price estimate</h2><p class="muted">Choose a destination to see an estimate.</p>`;
   const est = estimatePrice(d, data);
   const end = data.startDate ? addDays(data.startDate, d.nights) : '';
-  return `<img src="${img(d)}" alt="" width="1200" height="800"><h2>${esc(d.name)}</h2>
+  return `<img src="${img(d, 1, 800)}" alt="" width="800" height="533"><h2>${esc(d.name)}</h2>
     <ul class="meta"><li>${icon('moon', 16)}${d.nights} nights</li>${end ? `<li>${icon('calendar', 16)}${data.startDate} → ${end}</li>` : ''}<li>${icon('users', 16)}${data.adults + data.children} traveller${data.adults + data.children === 1 ? '' : 's'}</li></ul>
     <table class="estimate"><caption class="visually-hidden">Price estimate</caption><tbody>
       ${est.lines.map((l) => `<tr><td>${esc(l.label)}</td><td>${formatINR(l.amount)}</td></tr>`).join('')}
     </tbody><tfoot><tr><th scope="row">Estimated total</th><td data-total>${formatINR(est.total)}</td></tr></tfoot></table>
-    <p class="muted small">${est.tier.name} package. Estimate only, based on sample prices; final prices depend on availability.</p>`;
+    <p class="muted small">${est.tier.name} package. Estimate; final price depends on availability.</p>`;
 }
 
 function bindBooking() {
@@ -352,12 +395,12 @@ function bindBooking() {
     banner.hidden = true;
     const d = bySlug[data.destination];
     const est = estimatePrice(d, data);
-    const enquiry = { ...data, reference: makeReference(), destinationName: d.name, nights: d.nights, total: est.total, createdAt: new Date().toISOString(), status: 'Received (demo)' };
+    const enquiry = { ...data, reference: makeReference(), destinationName: d.name, nights: d.nights, total: est.total, createdAt: new Date().toISOString(), status: 'Received' };
     const list = loadEnquiries();
     list.unshift(enquiry);
     if (!saveEnquiries(list)) toast('Your browser blocked storage, so this enquiry will not be kept after you leave the page.');
     updateBadge();
-    sessionStorage.setItem('gomato.last', JSON.stringify(enquiry));
+    try { sessionStorage.setItem('gomato.last', JSON.stringify(enquiry)); } catch { /* storage unavailable */ }
     location.hash = `#/booking/confirmed?ref=${enquiry.reference}`;
   });
   refresh();
@@ -372,7 +415,7 @@ function confirmedPage(params) {
     <div class="confirm-icon">${icon('check', 40)}</div>
     <h1>Enquiry received</h1>
     <p class="lead">Reference <strong data-ref>${esc(e.reference)}</strong></p>
-    <p class="muted">This is a demonstration: no email was sent and nothing has been booked or charged. In a real service a travel planner would contact you to confirm availability.</p>
+    <p class="muted">Thanks, ${esc(e.name.split(' ')[0])}. Next, a travel planner checks availability for your dates and gets back to you to confirm the itinerary and final price. Nothing has been booked or charged yet.</p>
     <dl class="summary-list">
       <div><dt>Destination</dt><dd>${esc(e.destinationName)} (${e.nights} nights)</dd></div>
       <div><dt>Dates</dt><dd>${esc(e.startDate)} → ${addDays(e.startDate, e.nights)}</dd></div>
@@ -387,14 +430,14 @@ function confirmedPage(params) {
 
 function enquiriesPage() {
   const list = loadEnquiries();
-  return `<section class="page-head"><div class="container"><p class="eyebrow">Saved in this browser</p><h1>My enquiries</h1></div></section>
+  return `<section class="page-head"><div class="container"><nav class="crumbs" aria-label="Breadcrumb"><a href="#/">Home</a><span>/</span>My enquiries</nav><h1>My enquiries</h1><p class="lead">Trips you have enquired about from this device.</p></div></section>
   <section class="section section-tight"><div class="container">
     ${list.length ? `<div class="enquiry-list">${list.map((e) => `
       <article class="panel enquiry" data-ref="${esc(e.reference)}">
-        <img src="images/destinations/${esc(e.destination)}.svg" alt="" width="1200" height="800">
+        ${bySlug[e.destination] ? `<img src="${img(bySlug[e.destination], 1, 500)}" alt="" width="500" height="333">` : ''}
         <div><h2>${esc(e.destinationName)}</h2><p class="muted">${esc(e.reference)} · sent ${new Date(e.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
           <ul class="meta"><li>${icon('calendar', 16)}${esc(e.startDate)}</li><li>${icon('users', 16)}${e.adults + e.children} travellers</li><li>${icon('wallet', 16)}${formatINR(e.total)}</li></ul></div>
-        <div class="enquiry-actions"><span class="chip">${esc(e.status)}</span><button type="button" class="btn btn-ghost btn-sm" data-remove="${esc(e.reference)}">${icon('trash', 16)} Remove</button></div>
+        <div class="enquiry-actions"><span class="chip chip-status">${esc(String(e.status).replace(' (demo)', ''))}</span><button type="button" class="btn btn-ghost btn-sm" data-remove="${esc(e.reference)}">${icon('trash', 16)} Remove</button></div>
       </article>`).join('')}</div>`
     : `<div class="empty">${icon('route', 32)}<h2>No enquiries yet</h2><p class="muted">Enquiries you send from this browser will appear here.</p><a class="btn btn-primary" href="#/destinations">Browse destinations</a></div>`}
   </div></section>`;
@@ -404,7 +447,9 @@ function bindEnquiries() {
   app.addEventListener('click', (e) => {
     const b = e.target.closest('[data-remove]');
     if (!b) return;
-    if (!confirm('Remove this enquiry from this browser?')) return;
+    let ok = true;
+    try { ok = window.confirm('Remove this enquiry?'); } catch { ok = true; }
+    if (!ok) return;
     saveEnquiries(loadEnquiries().filter((x) => x.reference !== b.dataset.remove));
     updateBadge();
     toast('Enquiry removed.');
@@ -423,7 +468,7 @@ function render() {
   const fresh = app.cloneNode(false);
   app.replaceWith(fresh);
   app = fresh;
-  document.title = 'Gomato Travel · Holiday packages (demo)';
+  document.title = 'Gomato Travel · Holiday packages in Kerala, India and abroad';
   let html, bind;
   if (path === '/') html = homePage();
   else if (path === '/destinations') { html = destinationsPage(params); bind = bindDestinations; }
@@ -442,6 +487,7 @@ function render() {
   });
   closeMenu();
   window.scrollTo({ top: 0 });
+  document.querySelector('.site-header').classList.toggle('on-hero', path === '/');
 }
 
 function closeMenu() {
@@ -474,3 +520,9 @@ window.addEventListener('hashchange', render);
 document.querySelector('[data-year]').textContent = new Date().getFullYear();
 updateBadge();
 render();
+
+// Header turns solid once the page scrolls past the hero
+const header = document.querySelector('.site-header');
+const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 40);
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();

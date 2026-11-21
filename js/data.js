@@ -1,6 +1,7 @@
 // SAMPLE DATA — destinations are real places, but every package, itinerary, price and
-// availability figure below is illustrative sample content for this demo. Nothing here is a
-// live offer, and no booking provider or payment gateway is connected.
+// availability figure below is illustrative sample content for this portfolio project. Nothing
+// here is a live offer, and no booking provider or payment gateway is connected.
+// Photos: Unsplash (https://unsplash.com/license), referenced by photo ID and served from images.unsplash.com.
 
 export const REGIONS = ['Kerala', 'Rest of India', 'International'];
 export const TRIP_TYPES = ['Beach', 'Hills', 'Backwaters', 'Heritage', 'Wildlife', 'Adventure', 'City'];
@@ -134,3 +135,73 @@ export const destinations = [
     exclusions: ['Flights', 'Green tax', 'Excursions not listed']
   }
 ];
+
+// Unsplash photo IDs per destination: [cover, gallery 2, gallery 3]
+export const PHOTOS = {
+  "munnar": [
+    "1719831738921-972e0ec76337",
+    "1711192702535-eac61a78ecb0",
+    "1723709431768-d749b0d814b9"
+  ],
+  "alleppey-houseboat": [
+    "1593693411515-c20261bcad6e",
+    "1602216056096-3b40cc0c9944",
+    "1593693401060-9fc28cf9e368"
+  ],
+  "wayanad": [
+    "1623302485960-d61687113a11",
+    "1691342538271-5a97b7c1c089",
+    "1606388341424-54c9fe7a8270"
+  ],
+  "kovalam-varkala": [
+    "1697193374263-8aeb5488dabe",
+    "1609854534028-b512f5246abc",
+    "1697193375091-f9bfe3d7ed7b"
+  ],
+  "goa": [
+    "1614082242765-7c98ca0f3df3",
+    "1512343879784-a960bf40e7f2",
+    "1560179406-1c6c60e0dc76"
+  ],
+  "jaipur-udaipur": [
+    "1477587458883-47145ed94245",
+    "1589901164570-f9de6556e1c1",
+    "1603262110263-fb0112e7cc33"
+  ],
+  "manali": [
+    "1597167231350-d057a45dc868",
+    "1712388430474-ace0c16051e2",
+    "1773739967497-e09144a822d4"
+  ],
+  "andaman": [
+    "1586359716568-3e1907e4cf9f",
+    "1640618792277-b91f3199f6a8",
+    "1586053226626-febc8817962f"
+  ],
+  "dubai": [
+    "1512453979798-5ea266f8880c",
+    "1651467606797-e1c660cf3fda",
+    "1580674684081-7617fbf3d745"
+  ],
+  "singapore": [
+    "1525625293386-3f8f99389edd",
+    "1496939376851-89342e90adcd",
+    "1686455746285-4a921419bc6c"
+  ],
+  "bali": [
+    "1555400038-63f5ba517a47",
+    "1558005530-a7958896ec60",
+    "1513415756790-2ac1db1297d0"
+  ],
+  "maldives": [
+    "1573843981267-be1999ff37cd",
+    "1590523277543-a94d2e4eb00b",
+    "1516815231560-8f41ec531527"
+  ]
+};
+
+export const HERO_PHOTO = '1783068293579-ef1c7fe73eb9';
+export const CTA_PHOTO = '1508978053361-f0df91897005';
+
+/** Unsplash image URL for a photo ID at a given width. */
+export const photoUrl = (id, w = 1200) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=75`;

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 import { chromium } from 'playwright-core';
 import { server } from '../tools/serve.mjs';
-import { destinations } from '../js/data.js';
+import { destinations, PHOTOS } from '../js/data.js';
 import { filterDestinations } from '../js/logic.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -22,7 +22,7 @@ const results = [];
 let page;
 async function step(name, fn) {
   try { await fn(); results.push(true); console.log(`  ✔ ${name}`); }
-  catch (e) { results.push(false); console.log(`  ✘ ${name}\n    ${e.message.split('\n')[0]}`); }
+  catch (e) { results.push(false); console.log(`  ✘ ${name}\n    ${e.message.split("\n").slice(0,6).join(" | ")}`); }
 }
 const cards = () => page.locator('.dest-card').count();
 async function fullShot(name) {
@@ -31,8 +31,18 @@ async function fullShot(name) {
   await page.screenshot({ path: `${shots}/${name}.png`, fullPage: true });
 }
 
+// Photos (Unsplash) and web fonts are external. Set E2E_OFFLINE=1 to replace them with local stand-ins
+// so the test runs without network access; screenshots then show grey placeholders instead of photos.
+const PLACEHOLDER = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="100%" height="100%" fill="#c9d4d8"/></svg>';
+async function offlineAssets(context) {
+  if (!process.env.E2E_OFFLINE) return;
+  await context.route(/images\.unsplash\.com/, (r) => r.fulfill({ status: 200, contentType: 'image/svg+xml', body: PLACEHOLDER }));
+  await context.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.fulfill({ status: 200, contentType: 'text/css', body: '' }));
+}
+
 try {
   const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });
+  await offlineAssets(ctx);
   page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
@@ -90,7 +100,8 @@ try {
     await page.goto(BASE + '#/destinations/alleppey-houseboat');
     await page.getByRole('heading', { level: 1, name: 'Alleppey Houseboat' }).waitFor();
     await page.getByRole('button', { name: 'Show image 3' }).click();
-    assert.match(await page.locator('.gallery-main').getAttribute('src'), /-3\.svg$/);
+    assert.equal(await page.locator('.gallery-main').getAttribute('data-n'), '3');
+    assert.ok((await page.locator('.gallery-main').getAttribute('src')).includes(PHOTOS['alleppey-houseboat'][2]));
     assert.equal(await page.locator('.itinerary li').count(), 3);
     assert.equal(await page.locator('.tiers li').count(), 3);
     await page.getByRole('button', { name: 'Show image 1' }).click();
@@ -138,6 +149,7 @@ try {
 
   await step('mobile: menu toggles and navigates, layout fits the screen', async () => {
     const m = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+    await offlineAssets(m);
     const mp = await m.newPage();
     await mp.goto(BASE);
     await mp.getByRole('heading', { level: 1 }).waitFor();

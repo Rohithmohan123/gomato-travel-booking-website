@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { destinations } from '../js/data.js';
+import { destinations, PHOTOS, photoUrl } from '../js/data.js';
 import { filterDestinations, sortDestinations, estimatePrice, validateBooking, isPeakDate, makeReference, parseHash, addDays, formatINR } from '../js/logic.js';
 
 const munnar = destinations.find((d) => d.slug === 'munnar');
@@ -12,7 +12,12 @@ test('sample data is complete and consistent', () => {
     slugs.add(d.slug);
     assert.equal(d.itinerary.length, d.nights + 1, `${d.slug}: itinerary should have nights + 1 days`);
     assert.ok(d.priceFrom > 0 && d.bestMonths.every((m) => m >= 1 && m <= 12));
+    assert.equal(PHOTOS[d.slug]?.length, 3, `${d.slug}: needs 3 photos`);
   }
+});
+
+test('photo URLs point at the Unsplash CDN with a width', () => {
+  assert.equal(photoUrl('123-abc', 800), 'https://images.unsplash.com/photo-123-abc?auto=format&fit=crop&w=800&q=75');
 });
 
 test('filters by region, type, price, nights and month', () => {

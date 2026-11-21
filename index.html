@@ -3,16 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gomato Travel · Holiday packages (demo)</title>
-  <meta name="description" content="Demo travel booking website: browse sample holiday packages, search and filter destinations and send a booking enquiry. No real bookings or payments.">
-  <meta name="theme-color" content="#0f4c5c">
+  <title>Gomato Travel · Holiday packages in Kerala, India and abroad</title>
+  <meta name="description" content="Browse holiday packages across Kerala, India and international destinations. Compare package tiers, get an itemised price estimate and send a booking enquiry.">
+  <meta name="theme-color" content="#0e2a33">
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="css/styles.css">
   <script type="module" src="js/app.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
-  <div class="demo-banner" role="note">Portfolio demo · sample destinations and prices · no real bookings or payments are made</div>
 
   <header class="site-header">
     <div class="container header-inner">
@@ -38,22 +41,30 @@
 
   <footer class="site-footer">
     <div class="container footer-grid">
-      <div>
-        <p class="logo logo-light"><span>Gomato<em>Travel</em></span></p>
-        <p>A front-end demonstration of a travel booking website: destination listings, search and filters, package details and a booking enquiry flow.</p>
+      <div class="footer-brand">
+        <p class="logo logo-light"><svg width="30" height="30" viewBox="0 0 34 34" aria-hidden="true"><circle cx="17" cy="17" r="16" fill="#e4572e"/><path d="M8 21c4-7 8-10 18-10M10 25c5-4 9-6 15-6" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="23" cy="11" r="2.4" fill="#fff"/></svg><span>Gomato<em>Travel</em></span></p>
+        <p>Holiday packages across Kerala, India and abroad, with complete itineraries and transparent pricing.</p>
       </div>
       <div>
-        <h2>Explore</h2>
+        <h2>Destinations</h2>
         <a href="#/destinations?region=Kerala">Kerala</a>
         <a href="#/destinations?region=Rest%20of%20India">Rest of India</a>
         <a href="#/destinations?region=International">International</a>
       </div>
       <div>
-        <h2>About this demo</h2>
-        <p>Rebuilt from scratch for a portfolio; not the original client website. Packages and prices are sample data. Enquiries stay in your browser (localStorage). No booking provider or payment gateway is connected.</p>
+        <h2>Trip styles</h2>
+        <a href="#/destinations?type=Beach">Beach holidays</a>
+        <a href="#/destinations?type=Hills">Hill stations</a>
+        <a href="#/destinations?type=Heritage">Heritage tours</a>
+      </div>
+      <div>
+        <h2>Plan</h2>
+        <a href="#/booking">Plan a trip</a>
+        <a href="#/enquiries">My enquiries</a>
+        <a href="#/destinations">All packages</a>
       </div>
     </div>
-    <div class="container footer-base">© <span data-year></span> Demo project · MIT licence · Illustrations are original artwork</div>
+    <div class="container footer-base"><span>© <span data-year></span> Gomato Travel</span><span>Portfolio project by Rohith Mohan · packages and prices are illustrative · photos from Unsplash</span></div>
   </footer>
 
   <div class="toast" role="status" aria-live="polite" hidden></div>
