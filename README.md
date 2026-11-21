@@ -11,7 +11,7 @@ A responsive travel booking front end built with **plain HTML, CSS and JavaScrip
 > - Photos are from [Unsplash](https://unsplash.com) and used under the [Unsplash License](https://unsplash.com/license). They are loaded from the Unsplash CDN by photo ID (see `PHOTOS` in [`js/data.js`](js/data.js)) and are not stored in this repository. They show the real places but are not photos of these specific packages.
 > - The footer carries a one-line note that this is a portfolio project with illustrative prices.
 
-![Home page](docs/screenshots/01-home.png)
+![Home page](docs/screenshots/home.jpg)
 
 ## Objectives
 
@@ -83,11 +83,14 @@ The browser test needs Chrome or Chromium. Set `E2E_OFFLINE=1` to run it without
 
 ## Screenshots
 
+Captured from the live site on GitHub Pages (desktop, 1440 px wide).
+
 | | |
 |---|---|
-| ![Filtered listing](docs/screenshots/02-destinations-filtered.png) Filtered and sorted listing | ![Destination detail](docs/screenshots/03-destination-detail.png) Destination detail |
-| ![Booking validation](docs/screenshots/04-booking-validation.png) Booking form with validation and estimate | ![Confirmation](docs/screenshots/05-booking-confirmed.png) Enquiry confirmation |
-| ![Mobile home](docs/screenshots/07-mobile-home.png) Mobile homepage | ![Mobile menu](docs/screenshots/08-mobile-menu.png) Mobile navigation |
+| ![Trending destinations](docs/screenshots/trending.jpg) Trending destinations | ![Package cards](docs/screenshots/packages.jpg) Package cards |
+| ![Destination detail with photo gallery](docs/screenshots/destination.jpg) Destination detail with photo gallery | ![Booking form with live price estimate](docs/screenshots/booking.jpg) Booking form with live price estimate |
+
+Running the browser test also writes full-page PNG screenshots of every step to `docs/screenshots/` (ignored by git).
 
 ## Limitations
 
